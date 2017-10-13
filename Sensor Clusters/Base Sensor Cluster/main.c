@@ -11,15 +11,19 @@
  */ 
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
+// BMP280 I/O functions
 void BMP280_Write(uint8_t address, uint8_t data);
-void BMP280_Read(uint8_t address, uint8_t *data);
+uint8_t BMP280_Read(uint8_t address);
 void BMP280_MultiRead(uint8_t startAddress, uint8_t numRegisters, uint8_t data[]);
 
+// BMP055 I/O functions
 void BMX055_Write(uint8_t sensor, uint8_t address, uint8_t data);
-void BMX055_Read(uint8_t sensor, uint8_t address, uint8_t *data);
+uint8_t BMX055_Read(uint8_t sensor, uint8_t address);
 void BMX055_MultiRead(uint8_t sensor, uint8_t startAddress, uint8_t numRegisters, uint8_t data[]);
 
+// Primary Telemetry Computer I/O functions
 void RS232_Send(uint8_t source, uint8_t length, uint8_t data[]);
 
 
@@ -63,7 +67,7 @@ int main(void)
 	// Enable transmit and receive pins
 	USARTC0.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 	// Note that the USART defaults to no parity bit and 1 stop bit
-	
+
 	// --------------------- BMP280 Configuration ---------------------
 	// Set barometer oversampling mode to high resolution (x8) and enable temperature sensor with no oversampling
 	BMP280_Write(0xF4,0x33);
@@ -85,10 +89,86 @@ int main(void)
 	// Set magnetometer output data rate to 20 Hz
 	BMX055_Write(2,0x4C,0x23);
 
+	// --------------------- Program State Definitions ---------------------
+	// These variables are used to control what the microcontroller will do in the main loop
+	uint8_t global_en = 1;
+	uint8_t	BMP280_en = 1;
+	uint8_t BMX055_accel_en = 1;
+	uint8_t BMX055_gyro_en = 1;
+	uint8_t BMX055_magnt_en = 1;
+
+	// --------------------- Post-Configuration Tests ---------------------
+	// In order to check that each sensor is active and not dead/malfunctioning, verify the chip id of each sensor
+
+	uint8_t test_results = 0;
+
+	// Test BMP280
+	if(BMP280_Read(0xD0) == 0x58) test_results |= 0x01;
+
+	// Test BMX055 Accelerometer
+	if(BMX055_Read(0,0x00) == 0xFA) test_results |= 0x02;
+
+	// Test BMX055 Gyroscope
+	if(BMX055_Read(1,0x00) == 0x0F) test_results |= 0x04;
+
+	// Test BMX055 Magnetometer
+	if(BMX055_Read(2,0x40) == 0x32) test_results |= 0x08;
+
+	// Report status to Primary Telemetry Computer
+	RS232_Send(0x01,1,&test_results);
+
+	// Enable interrupts
+	sei();
+
+	// Begin normal operation
     while(1)
 	{
+		if(global_en && BMP280_en)
+		{
+			
+		}
+		if(global_en && BMX055_accel_en)
+		{
 
+		}
+		if(global_en && BMX055_gyro_en)
+		{
+
+		}
+		if(global_en && BMX055_magnt_en)
+		{
+
+		}
     }
+}
+
+// Reads the specified register of the BMP280
+uint8_t BMP280_Read(uint8_t address)
+{
+	uint8_t data;
+
+	// Enable BMP280 SS
+	PORTA.OUTCLR = 1 << 1;
+
+	// Send register address and read bit
+	SPIC.DATA = address | 0x80;
+
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+
+	// Receive data
+	SPIC.DATA = 0x00;
+
+	// Wait for receive to complete
+	while(!(SPIC.STATUS & 0x80));
+	
+	// Read received data
+	data = SPIC.DATA;
+
+	// Disable BMX055 SS
+	PORTA.OUTSET = 1 << 1;
+
+	return data;
 }
 
 // Writes one byte to the specified register of the BMP280
@@ -113,6 +193,38 @@ void BMP280_Write(uint8_t address, uint8_t data)
 	PORTA.OUTSET = 1 << 1;
 
 	return;
+}
+
+// Reads the specified register from the specified sensor of the BMX055 (0 = accel, 1 = gyro, 2 = magnt)
+uint8_t BMX055_Read(uint8_t sensor, uint8_t address)
+{
+	uint8_t data;
+
+	// Enable BMX055 SS
+	if(sensor == 0) PORTA.OUTCLR = 1 << 2;
+	else if(sensor == 1) PORTA.OUTCLR = 1 << 3;
+	else if(sensor == 2) PORTA.OUTCLR = 1 << 4;
+	else return 0;
+
+	// Send register address and read bit
+	SPIC.DATA = address | 0x80;
+
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+
+	// Receive data
+	SPIC.DATA = 0x00;
+
+	// Wait for receive to complete
+	while(!(SPIC.STATUS & 0x80));
+	
+	// Read received data
+	data = SPIC.DATA;
+
+	// Disable BMX055 SS
+	PORTA.OUTSET = 0x1C;
+
+	return data;
 }
 
 // Writes one byte to the specified sensor and register of the BMX055 (0 = accel, 1 = gyro, 2 = magnt)
@@ -142,7 +254,7 @@ void BMX055_Write(uint8_t sensor, uint8_t address, uint8_t data)
 	return;
 }
 
-// Transmits a message to the main telemetry computer
+// Transmits a message to the main telemetry computer via USARTC0
 void RS232_Send(uint8_t source, uint8_t length, uint8_t data[])
 {
 	// Transmit message source
