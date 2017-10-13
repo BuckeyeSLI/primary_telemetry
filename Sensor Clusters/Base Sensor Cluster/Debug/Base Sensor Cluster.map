@@ -475,15 +475,15 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x312c
+.debug_info     0x00000000     0x3127
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000     0x284f C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_info    0x0000284f      0x8dd main.o
+ .debug_info    0x0000284f      0x8d8 main.o
 
-.debug_abbrev   0x00000000     0x27cc
+.debug_abbrev   0x00000000     0x27a3
  *(.debug_abbrev)
  .debug_abbrev  0x00000000     0x262c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_abbrev  0x0000262c      0x1a0 main.o
+ .debug_abbrev  0x0000262c      0x177 main.o
 
 .debug_line     0x00000000      0x793
  *(.debug_line .debug_line.* .debug_line_end)
