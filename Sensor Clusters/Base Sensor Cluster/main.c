@@ -91,7 +91,7 @@ int main(void)
 
 	// --------------------- Program State Definitions ---------------------
 	// These variables are used to control what the microcontroller will do in the main loop
-	uint8_t global_en = 1;
+	uint8_t global_en = 0;
 	uint8_t	BMP280_en = 1;
 	uint8_t BMX055_accel_en = 1;
 	uint8_t BMX055_gyro_en = 1;
@@ -118,21 +118,42 @@ int main(void)
 	{
 		if(global_en && BMP280_en)
 		{
-			
+			uint8_t pressure_data[6];
+			BMP280_MultiRead(0xF7,6,pressure_data);
+			RS232_Send(0x02,6,pressure_data);
 		}
 		if(global_en && BMX055_accel_en)
 		{
-
+			
 		}
 		if(global_en && BMX055_gyro_en)
 		{
-
+			
 		}
 		if(global_en && BMX055_magnt_en)
 		{
-
+			
 		}
     }
+}
+
+// Writes one byte to the specified register of the BMP280
+void BMP280_Write(uint8_t address, uint8_t data)
+{
+	// Enable BMP280 SS
+	PORTA.OUTCLR = 1 << 1;
+	// Send register address
+	SPIC.DATA = address;
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+	// Send data
+	SPIC.DATA = data;
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+	// Disable BMX055 SS
+	PORTA.OUTSET = 1 << 1;
+
+	return;
 }
 
 // Reads the specified register of the BMP280
@@ -158,19 +179,22 @@ uint8_t BMP280_Read(uint8_t address)
 	return data;
 }
 
-// Writes one byte to the specified register of the BMP280
-void BMP280_Write(uint8_t address, uint8_t data)
+// Reads the specified registers of the BMP280 in a single read cycle
+void BMP280_MultiRead(uint8_t startAddress, uint8_t numRegisters, uint8_t data[])
 {
 	// Enable BMP280 SS
 	PORTA.OUTCLR = 1 << 1;
-	// Send register address
-	SPIC.DATA = address;
+	// Send register address and read bit
+	SPIC.DATA = startAddress | 0x80;
 	// Wait for send to complete
 	while(!(SPIC.STATUS & 0x80));
-	// Send data
-	SPIC.DATA = data;
-	// Wait for send to complete
-	while(!(SPIC.STATUS & 0x80));
+	// Begin multiple register read
+	for(uint8_t i = 0; i < numRegisters; i++)
+	{
+		SPIC.DATA = 0x00;
+		while(!(SPIC.STATUS & 0x80));
+		data[i] = SPIC.DATA;
+	}
 	// Disable BMX055 SS
 	PORTA.OUTSET = 1 << 1;
 
