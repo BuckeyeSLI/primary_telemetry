@@ -124,15 +124,28 @@ int main(void)
 		}
 		if(global_en && BMX055_accel_en)
 		{
-			
+			uint8_t acceleromter_data[7];
+			BMX055_MultiRead(0,0x02,7,acceleromter_data);
+			acceleromter_data[0] &= ~0x01;
+			acceleromter_data[2] &= ~0x01;
+			acceleromter_data[4] &= ~0x01;
+			RS232_Send(0x03,7,acceleromter_data);
 		}
 		if(global_en && BMX055_gyro_en)
 		{
-			
+			uint8_t gyroscope_data[6];
+			BMX055_MultiRead(1,0x02,6,gyroscope_data);
+			RS232_Send(0x04,6,gyroscope_data);
 		}
 		if(global_en && BMX055_magnt_en)
 		{
-			
+			uint8_t magnetometer_data[8];
+			BMX055_MultiRead(1,0x02,8,magnetometer_data);
+			magnetometer_data[0] &= ~0x01;
+			magnetometer_data[2] &= ~0x01;
+			magnetometer_data[4] &= ~0x01;
+			magnetometer_data[6] &= ~0x01;
+			RS232_Send(0x42,8,magnetometer_data);
 		}
     }
 }
@@ -195,8 +208,30 @@ void BMP280_MultiRead(uint8_t startAddress, uint8_t numRegisters, uint8_t data[]
 		while(!(SPIC.STATUS & 0x80));
 		data[i] = SPIC.DATA;
 	}
-	// Disable BMX055 SS
+	// Disable BMP280 SS
 	PORTA.OUTSET = 1 << 1;
+
+	return;
+}
+
+// Writes one byte to the specified sensor and register of the BMX055 (0 = accel, 1 = gyro, 2 = magnt)
+void BMX055_Write(uint8_t sensor, uint8_t address, uint8_t data)
+{
+	// Enable BMX055 SS
+	if(sensor == 0) PORTA.OUTCLR = 1 << 2;
+	else if(sensor == 1) PORTA.OUTCLR = 1 << 3;
+	else if(sensor == 2) PORTA.OUTCLR = 1 << 4;
+	else return;
+	// Send register address
+	SPIC.DATA = address;
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+	// Send data
+	SPIC.DATA = data;
+	// Wait for send to complete
+	while(!(SPIC.STATUS & 0x80));
+	// Disable BMX055 SS
+	PORTA.OUTSET = 0x1C;
 
 	return;
 }
@@ -227,22 +262,25 @@ uint8_t BMX055_Read(uint8_t sensor, uint8_t address)
 	return data;
 }
 
-// Writes one byte to the specified sensor and register of the BMX055 (0 = accel, 1 = gyro, 2 = magnt)
-void BMX055_Write(uint8_t sensor, uint8_t address, uint8_t data)
+// Reads the specified registers of the BMX055 in a single read cycle (0 = accel, 1 = gyro, 2 = magnt)
+void BMX055_MultiRead(uint8_t sensor, uint8_t startAddress, uint8_t numRegisters, uint8_t data[])
 {
 	// Enable BMX055 SS
 	if(sensor == 0) PORTA.OUTCLR = 1 << 2;
 	else if(sensor == 1) PORTA.OUTCLR = 1 << 3;
 	else if(sensor == 2) PORTA.OUTCLR = 1 << 4;
 	else return;
-	// Send register address
-	SPIC.DATA = address;
+	// Send register address and read bit
+	SPIC.DATA = startAddress | 0x80;
 	// Wait for send to complete
 	while(!(SPIC.STATUS & 0x80));
-	// Send data
-	SPIC.DATA = data;
-	// Wait for send to complete
-	while(!(SPIC.STATUS & 0x80));
+	// Begin multiple register read
+	for(uint8_t i = 0; i < numRegisters; i++)
+	{
+		SPIC.DATA = 0x00;
+		while(!(SPIC.STATUS & 0x80));
+		data[i] = SPIC.DATA;
+	}
 	// Disable BMX055 SS
 	PORTA.OUTSET = 0x1C;
 

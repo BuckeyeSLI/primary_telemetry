@@ -12,6 +12,8 @@ Discarded input sections
  .bss           0x00000000        0x0 main.o
  .text.BMP280_MultiRead
                 0x00000000       0x46 main.o
+ .text.BMX055_MultiRead
+                0x00000000       0x62 main.o
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega2\libgcc.a(_exit.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega2\libgcc.a(_exit.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avrxmega2\libgcc.a(_exit.o)
@@ -342,12 +344,12 @@ END GROUP
  .text.BMP280_Read
                 0x0000023e       0x30 main.o
                 0x0000023e                BMP280_Read
- .text.BMX055_Read
-                0x0000026e       0x50 main.o
-                0x0000026e                BMX055_Read
  .text.BMX055_Write
-                0x000002be       0x46 main.o
-                0x000002be                BMX055_Write
+                0x0000026e       0x46 main.o
+                0x0000026e                BMX055_Write
+ .text.BMX055_Read
+                0x000002b4       0x50 main.o
+                0x000002b4                BMX055_Read
  .text.RS232_Send
                 0x00000304       0x3a main.o
                 0x00000304                RS232_Send
@@ -469,42 +471,42 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0x50
+.debug_aranges  0x00000000       0x58
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x50 main.o
+                0x00000000       0x58 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x3187
+.debug_info     0x00000000     0x31ff
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000     0x284f C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_info    0x0000284f      0x938 main.o
+ .debug_info    0x0000284f      0x9b0 main.o
 
-.debug_abbrev   0x00000000     0x27b2
+.debug_abbrev   0x00000000     0x27db
  *(.debug_abbrev)
  .debug_abbrev  0x00000000     0x262c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_abbrev  0x0000262c      0x186 main.o
+ .debug_abbrev  0x0000262c      0x1af main.o
 
-.debug_line     0x00000000      0x7f6
+.debug_line     0x00000000      0x889
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x391 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_line    0x00000391      0x465 main.o
+ .debug_line    0x00000391      0x4f8 main.o
 
-.debug_frame    0x00000000       0x94
+.debug_frame    0x00000000       0xa4
  *(.debug_frame)
- .debug_frame   0x00000000       0x94 main.o
+ .debug_frame   0x00000000       0xa4 main.o
 
-.debug_str      0x00000000     0x20b9
+.debug_str      0x00000000     0x20ca
  *(.debug_str)
  .debug_str     0x00000000     0x1aa8 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/XMEGAA_DFP/1.1.68/gcc/dev/atxmega32a4u/avrxmega2/crtatxmega32a4u.o
- .debug_str     0x00001aa8      0x611 main.o
-                                0x656 (size before relaxing)
+ .debug_str     0x00001aa8      0x622 main.o
+                                0x667 (size before relaxing)
 
-.debug_loc      0x00000000      0x301
+.debug_loc      0x00000000      0x3fe
  *(.debug_loc)
- .debug_loc     0x00000000      0x301 main.o
+ .debug_loc     0x00000000      0x3fe main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -524,9 +526,9 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0x40
+.debug_ranges   0x00000000       0x48
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x40 main.o
+ .debug_ranges  0x00000000       0x48 main.o
 
 .debug_macro
  *(.debug_macro)
