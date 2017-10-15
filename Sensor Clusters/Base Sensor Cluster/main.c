@@ -56,15 +56,15 @@ int main(void)
 	PORTC.DIRSET = 0xB8;
 	PORTC.OUTSET = 0x38;
 
-	// --------------------- PMIC Configuration ---------------------
+	/* --------------------- PMIC Configuration --------------------- */
 	// Enable medium and low priority interrupts
 	PMIC.CTRL = PMIC_LOLVLEX_bm | PMIC_MEDLVLEN_bm;
 
-	// --------------------- SPI Configuration ---------------------
+	/* --------------------- SPI Configuration --------------------- */
 	// Enable SPIC as master, mode 0, and set speed to 4 MHz
 	SPIC.CTRL = SPI_CLK2X_bm | SPI_ENABLE_bm | SPI_MASTER_bm | SPI_PRESCALER0_bm;
 
-	// --------------------- USART Configuration ---------------------
+	/* --------------------- USART Configuration --------------------- */
 	// Set USCARTC0 receive interrupt to medium priority
 	USARTC0.CTRLA = USART_RXCINTLVL_MED_gc;
 	// Set packet size to 8 bits
@@ -76,11 +76,11 @@ int main(void)
 	USARTC0.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 	// Note that the USART defaults to no parity bit and 1 stop bit
 
-	// --------------------- BMP280 Configuration ---------------------
+	/* --------------------- BMP280 Configuration --------------------- */
 	// Set barometer oversampling mode to high resolution (x8) and enable temperature sensor with no oversampling
 	BMP280_Write(0xF4,0x33);
 
-	// --------------------- BMX055 Configuration ---------------------
+	/* --------------------- BMX055 Configuration --------------------- */
 	// Set accelerometer bandwidth to 125 Hz (probably ok?)
 	BMX055_Write(0,0x10,0x0C);
 	// Set accelerometer range to +/- 16 g
@@ -97,7 +97,7 @@ int main(void)
 	// Set magnetometer output data rate to 20 Hz
 	BMX055_Write(2,0x4C,0x23);
 
-	// --------------------- Program State Definitions ---------------------
+	/* --------------------- Program State Definitions --------------------- */
 	// These variables are used to control what the microcontroller will do in the main loop
 	uint8_t global_en = 0;
 	uint8_t	BMP280_en = 1;
@@ -105,7 +105,7 @@ int main(void)
 	uint8_t BMX055_gyro_en = 1;
 	uint8_t BMX055_magnt_en = 1;
 
-	// --------------------- Post-Configuration Tests ---------------------
+	/* --------------------- Post-Configuration Tests --------------------- */
 	// In order to check that each sensor is active and not dead/malfunctioning, verify the chip id of each sensor
 	uint8_t test_results = 0;
 	// Test BMP280
