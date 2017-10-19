@@ -1,0 +1,57 @@
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <iostream>
+#include <netdb.h>
+
+#define IN_TEST 1
+
+
+//declare const. for ip and port
+
+int main(){
+
+if(IN_TEST){
+fprintf("\nCODE IS NOT COMPLETE AND LIKELY TO ERROR! IF YOU WISH TO CONTINUE ANYWAYS, ENTER A '1'. TYPE ANY OTHER INT TO EXIT. YOU HAVE BEEN WARNED.\n");
+int contin;
+scanf("%i\n", &contin);
+if(contin == 1){
+exit(0);
+} else {
+fprintf("\n......dumbass\n");
+}
+
+}
+
+
+const char *locAdd; //MUST DECLARE HERE
+const char *locPort; //MUST DECLARE HERE
+
+struct addrinfo rock, *res;
+int listenSoc;
+int status;
+
+// first, load up address structs with getaddrinfo():
+
+memset(&hints, 0, sizeof(hints));
+rock.ai_family = AF_INET;  // use IPv4
+rock.ai_socktype = SOCK_STREAM;
+rock.ai_flags = locAdd;     //specific local IP
+
+
+if ((status = getaddrinfo(locAdd, locPort, &rock, &res);) != 0){
+	fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
+	exit(1);
+}
+
+// make a socket:
+
+listenSoc = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+// bind it to the port we passed in to getaddrinfo():
+
+bind(listenSoc, res->ai_addr, res->ai_addrlen);
+
+
+
+return 0;
+}

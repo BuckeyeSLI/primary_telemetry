@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#define ROCKPORT 6796 //~BOOM => 66 79 66
+#define GROUNDPORT 7658 //~FAP => 70 65 80
+#define ROCKIP "192.168.0.1" //TODO
+#define GROUNDIP "" //TODO
+
+int rocket_socket;
+int connectionBacklog = 10;
+struct sockaddr_in rock_addr;
+
+rocket_socket = socket(PF_INET, SOCK_DGRAM, 0);
+
+rock_addr.sin_family = AF_INET;
+rock_addr.sin_port = htons(ROCKPORT);  // short, network byte order8
+rock_addr.sin_addr.s_addr = inet_addr(ROCKIP); //IP we want TODO
+memset(rock_addr.sin_zero, '\0', sizeof rock_addr.sin_zero);
+
+bind(rocket_socket, (struct sockaddr *)&rock_addr, sizeof rock_addr); //TODO errorcheck
+
+//ground socket info TODO update this
+struct sockaddr_in ground_addr;
+ground_socket = socket(PF_INET, SOCK_DGRAM, 0);
+ground_addr.sin_family = AF_INET;
+ground_addr.sin_port = htons(GROUNDPORT);  // short, network byte order8
+ground_addr.sin_addr.s_addr = inet_addr(GROUNDIP); //IP we want TODO
+memset(ground_addr.sin_zero, '\0', sizeof ground_addr.sin_zero);
+bind(ground_socket, (struct sockaddr *)&ground_addr, sizeof ground_addr); //TODO errorcheck
+
+//process and send data-----------------------
+int sendto(ground_socket, const void *msg, int len, 0, (struct sockaddr *)&ground_addr, sizeof ground_addr); 
+
+
+
+int recvfrom(int sockfd, void *buf, int len, unsigned int flags,
+             struct sockaddr *from, int *fromlen); 
