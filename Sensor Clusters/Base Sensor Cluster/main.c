@@ -94,7 +94,7 @@ int main(void)
 	if(BMX055_Read(2,0x40) == 0x32) BMX055_magnt_alive = 1;
 	// Report status to Primary Telemetry Computer
 	RS232_OutputBuffer_Add(0x00);
-	RS232_OutputBuffer_Add(BMP280_alive | (BMX055_accel_alive << 1) | (BMX055_gyro_alive << 2) | (BMX055_magnt_alive << 3);
+	RS232_OutputBuffer_Add(BMP280_alive | (BMX055_accel_alive << 1) | (BMX055_gyro_alive << 2) | (BMX055_magnt_alive << 3));
 
 	/* --------------------- BMP280 Configuration --------------------- */
 	if(BMP280_alive)
