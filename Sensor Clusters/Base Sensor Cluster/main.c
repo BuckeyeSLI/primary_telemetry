@@ -38,13 +38,15 @@ void RS232_OutputBuffer_Send();
 int main(void)
 {
     // --------------------- Clock Configuration ---------------------
-	// Enable 32 MHz clock
-	OSC.CTRL = OSC.CTRL | OSC_RC32MEN_bm;
-	// Wait for 32 MHz clock to stabilize
-	while(!(OSC.STATUS & OSC_RC32MRDY_bm));
+	// Enable 32 MHz clock and 32 kHz clock
+	OSC.CTRL = OSC.CTRL | OSC_RC32MEN_bm | OSC_RC32KEN_bm;
+	// Wait for clocks to stabilize
+	while(OSC.STATUS != (OSC.STATUS | OSC_RC32MRDY_bm | OSC_RC32KRDY_bm));
 	// Set CPU clock to 32 MHz clock
 	CCP = CCP_IOREG_gc;
 	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;
+	// Enable 32 MHz clock DFLL
+	DFLLRC32M.CTRL = DFLL_ENABLE_bm;
 	// Disable 2 MHz clock
 	OSC.CTRL = OSC.CTRL & ~OSC_RC2MEN_bm;
 
@@ -76,26 +78,56 @@ int main(void)
 	USARTC0.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 	// Note that the USART defaults to no parity bit and 1 stop bit
 
+	/* --------------------- Sensor Presence Tests --------------------- */
+	// In order to check that each sensor is active and not dead/malfunctioning, verify the chip id of each sensor
+	uint8_t BMP280_alive = 0;
+	uint8_t	BMX055_accel_alive = 0;
+	uint8_t BMX055_gyro_alive = 0;
+	uint8_t BMX055_magnt_alive = 0;
+	// Test BMP280
+	if(BMP280_Read(0xD0) == 0x58) BMP280_alive = 1;
+	// Test BMX055 Accelerometer
+	if(BMX055_Read(0,0x00) == 0xFA) BMX055_accel_alive = 1;
+	// Test BMX055 Gyroscope
+	if(BMX055_Read(1,0x00) == 0x0F) BMX055_gyro_alive = 1;
+	// Test BMX055 Magnetometer
+	if(BMX055_Read(2,0x40) == 0x32) BMX055_magnt_alive = 1;
+	// Report status to Primary Telemetry Computer
+	RS232_OutputBuffer_Add(0x00);
+	RS232_OutputBuffer_Add(BMP280_alive | (BMX055_accel_alive << 1) | (BMX055_gyro_alive << 2) | (BMX055_magnt_alive << 3);
+
 	/* --------------------- BMP280 Configuration --------------------- */
-	// Set barometer oversampling mode to high resolution (x8) and enable temperature sensor with no oversampling
-	BMP280_Write(0xF4,0x33);
+	if(BMP280_alive)
+	{
+		// Set barometer oversampling mode to high resolution (x8) and enable temperature sensor with no oversampling
+		BMP280_Write(0xF4,0x33);
+	}
 
 	/* --------------------- BMX055 Configuration --------------------- */
-	// Set accelerometer bandwidth to 125 Hz (probably ok?)
-	BMX055_Write(0,0x10,0x0C);
-	// Set accelerometer range to +/- 16 g
-	BMX055_Write(0,0x0F,0x0C);
-	// Shut off accelerometer slow calibration in the z-axis because this definitely won't like constant acceleration
-	BMX055_Write(0,0x36,0x03);
-	// Set gyroscope output data rate to 200 Hz and filter bandwidth to 64 Hz (probably ok?)
-	BMX055_Write(1,0x10,0x06);
-	// Set gyroscope range to 500 degrees/s
-	BMX055_Write(1,0x0F,0x02);
-	// Set magnetometer x/y repetition to 47 and z repetition to 83 
-	BMX055_Write(2,0x51,0x1B);
-	BMX055_Write(2,0x52,0x29);
-	// Set magnetometer output data rate to 20 Hz
-	BMX055_Write(2,0x4C,0x23);
+	if(BMX055_accel_alive)
+	{
+		// Set accelerometer bandwidth to 125 Hz (probably ok?)
+		BMX055_Write(0,0x10,0x0C);
+		// Set accelerometer range to +/- 16 g
+		BMX055_Write(0,0x0F,0x0C);
+		// Shut off accelerometer slow calibration in the z-axis because this definitely won't like constant acceleration
+		BMX055_Write(0,0x36,0x03);
+	}
+	if(BMX055_gyro_alive)
+	{
+		// Set gyroscope output data rate to 200 Hz and filter bandwidth to 64 Hz (probably ok?)
+		BMX055_Write(1,0x10,0x06);
+		// Set gyroscope range to 500 degrees/s
+		BMX055_Write(1,0x0F,0x02);
+	}
+	if(BMX055_magnt_alive)
+	{
+		// Set magnetometer x/y repetition to 47 and z repetition to 83 
+		BMX055_Write(2,0x51,0x1B);
+		BMX055_Write(2,0x52,0x29);
+		// Set magnetometer output data rate to 20 Hz
+		BMX055_Write(2,0x4C,0x23);
+	}
 
 	/* --------------------- Program State Definitions --------------------- */
 	// These variables are used to control what the microcontroller will do in the main loop
@@ -105,20 +137,6 @@ int main(void)
 	uint8_t BMX055_gyro_en = 1;
 	uint8_t BMX055_magnt_en = 1;
 
-	/* --------------------- Post-Configuration Tests --------------------- */
-	// In order to check that each sensor is active and not dead/malfunctioning, verify the chip id of each sensor
-	uint8_t test_results = 0;
-	// Test BMP280
-	if(BMP280_Read(0xD0) == 0x58) test_results |= 0x01;
-	// Test BMX055 Accelerometer
-	if(BMX055_Read(0,0x00) == 0xFA) test_results |= 0x02;
-	// Test BMX055 Gyroscope
-	if(BMX055_Read(1,0x00) == 0x0F) test_results |= 0x04;
-	// Test BMX055 Magnetometer
-	if(BMX055_Read(2,0x40) == 0x32) test_results |= 0x08;
-	// Report status to Primary Telemetry Computer
-	RS232_OutputBuffer_Add(0x00);
-	RS232_OutputBuffer_Add(test_results);
 	// Enable interrupts
 	sei();
 
