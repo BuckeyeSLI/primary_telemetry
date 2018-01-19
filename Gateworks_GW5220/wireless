@@ -1,0 +1,13 @@
+config 'wifi-device' 'wlan0'
+	option 'type' 'mac80211'
+	option 'disabled' '0'
+	option 'channel' '6'
+	option 'htmode' 'NONE'
+	option 'chanbw' '5'
+
+config 'wifi-iface'
+	option 'device' 'wlan0'
+	option 'network' 'telemetry'
+	option 'mode' 'adhoc'
+	option 'ssid' 'KE8BKT'
+	option 'encryption' 'none'
