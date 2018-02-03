@@ -10,14 +10,11 @@
  *		will serve as the base upon which the unique sensor clusters are developed.
  */ 
 
+#define F_CPU 32000000UL
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-// RS232 data buffers
-volatile uint8_t RS232_input[128];
-volatile uint8_t RS232_input_index = 0;
-volatile uint8_t RS232_output[128];
-volatile uint8_t RS232_output_index = 0;
+#include "usart.h"
 
 // BMP280 I/O functions
 void BMP280_Write(uint8_t address, uint8_t data);
@@ -28,13 +25,13 @@ void BMP280_MultiRead(uint8_t startAddress, uint8_t numRegisters, uint8_t data[]
 void BMX055_Write(uint8_t sensor, uint8_t address, uint8_t data);
 uint8_t BMX055_Read(uint8_t sensor, uint8_t address);
 void BMX055_MultiRead(uint8_t sensor, uint8_t startAddress, uint8_t numRegisters, uint8_t data[]);
-
+/*
 // Primary Telemetry Computer RS232 I/O functions
 void RS232_InputBuffer_Add(uint8_t data);
 void RS232_OutputBuffer_Add(uint8_t data);
 void RS232_OutputBuffer_MultiAdd(uint8_t data[], uint8_t size);
 void RS232_OutputBuffer_Send();
-
+*/
 int main(void)
 {
     // --------------------- Clock Configuration ---------------------
@@ -77,7 +74,7 @@ int main(void)
 	// Enable transmit and receive pins
 	USARTC0.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 	// Note that the USART defaults to no parity bit and 1 stop bit
-
+	
 	/* --------------------- Sensor Presence Tests --------------------- */
 	// In order to check that each sensor is active and not dead/malfunctioning, verify the chip id of each sensor
 	uint8_t BMP280_alive = 0;
@@ -93,8 +90,8 @@ int main(void)
 	// Test BMX055 Magnetometer
 	if(BMX055_Read(2,0x40) == 0x32) BMX055_magnt_alive = 1;
 	// Report status to Primary Telemetry Computer
-	RS232_OutputBuffer_Add(0x00);
-	RS232_OutputBuffer_Add(BMP280_alive | (BMX055_accel_alive << 1) | (BMX055_gyro_alive << 2) | (BMX055_magnt_alive << 3));
+	//RS232_OutputBuffer_Add(0x00);
+	//RS232_OutputBuffer_Add(BMP280_alive | (BMX055_accel_alive << 1) | (BMX055_gyro_alive << 2) | (BMX055_magnt_alive << 3));
 
 	/* --------------------- BMP280 Configuration --------------------- */
 	if(BMP280_alive)
@@ -147,8 +144,8 @@ int main(void)
 		{
 			uint8_t pressure_data[6];
 			BMP280_MultiRead(0xF7,6,pressure_data);
-			RS232_OutputBuffer_Add(0x01);
-			RS232_OutputBuffer_MultiAdd(pressure_data,6);
+			//RS232_OutputBuffer_Add(0x01);
+			//RS232_OutputBuffer_MultiAdd(pressure_data,6);
 		}
 		if(global_en && BMX055_accel_en)
 		{
@@ -157,15 +154,15 @@ int main(void)
 			acceleromter_data[0] &= ~0x01;
 			acceleromter_data[2] &= ~0x01;
 			acceleromter_data[4] &= ~0x01;
-			RS232_OutputBuffer_Add(0x02);
-			RS232_OutputBuffer_MultiAdd(acceleromter_data,7);
+			//RS232_OutputBuffer_Add(0x02);
+			//RS232_OutputBuffer_MultiAdd(acceleromter_data,7);
 		}
 		if(global_en && BMX055_gyro_en)
 		{
 			uint8_t gyroscope_data[6];
 			BMX055_MultiRead(1,0x02,6,gyroscope_data);
-			RS232_OutputBuffer_Add(0x03);
-			RS232_OutputBuffer_MultiAdd(gyroscope_data,6);
+			//RS232_OutputBuffer_Add(0x03);
+			//RS232_OutputBuffer_MultiAdd(gyroscope_data,6);
 		}
 		if(global_en && BMX055_magnt_en)
 		{
@@ -175,18 +172,19 @@ int main(void)
 			magnetometer_data[2] &= ~0x01;
 			magnetometer_data[4] &= ~0x01;
 			magnetometer_data[6] &= ~0x01;
-			RS232_OutputBuffer_Add(0x04);
-			RS232_OutputBuffer_MultiAdd(magnetometer_data,8);
+			//RS232_OutputBuffer_Add(0x04);
+			//RS232_OutputBuffer_MultiAdd(magnetometer_data,8);
 		}
-		RS232_OutputBuffer_Send();
+		//RS232_OutputBuffer_Send();
     }
+	
 }
 
 // USART0 receive complete interrupt subroutine
 ISR(USARTC0_RXC_vect)
 {
 	uint8_t data = USARTC0.DATA;
-	RS232_InputBuffer_Add(data);
+	//RS232_InputBuffer_Add(data);
 }
 
 // Writes one byte to the specified register of the BMP280
@@ -325,7 +323,7 @@ void BMX055_MultiRead(uint8_t sensor, uint8_t startAddress, uint8_t numRegisters
 
 	return;
 }
-
+/*
 // Adds one item to the RS232 receive buffer
 void RS232_InputBuffer_Add(uint8_t data)
 {
@@ -363,3 +361,4 @@ void RS232_OutputBuffer_Send()
 	RS232_output_index = 0;
 	return;
 }
+*/
