@@ -4,6 +4,7 @@ import os.path
 import struct
 from socket import *
 from datetime import datetime
+import serial
 
 #-------- Rocket.py  -------------------------------
 # call structure: python Rocket.py groundIP groundPort
@@ -34,31 +35,33 @@ def getLogPath ():
     return localPath
     
 # Performs rs-232 communication  
-def getData(clusterNum):
+def getData(port):
 	data = 0
-	# Perform async call to the rs-232 port associated with clusterNum
-	# assign cluster numbers
-	# check if data, skip if none, else read data, timeout (below in a function, call serialRead)
-		#read 1 byte at a time, parsing data
-	# if timeout value, data = -1
-	# perform asyc read, if fail, increment counter (reset if success), if fail count too large, reset count and issue restart to cluster
+	avail = port.in_waiting
+	# Read if data present on port
+	if (avail > 0):
+		# discard bytes until start flag reached (size = 1, in loop) TODO create some limit to set failure if needed
+		# read message id, read message (size = #bytes in that message) If fail, set data to -1
+		# if no failure, read in end flag and confirm to remove from buffer (size = 1)
 	
-	finalData = parseData(data)
-	return finalData
+	final = parseData(data)
+	return final
 	
-def finalData (data):
+def parseData (data):
 	# if data = 0, set cluster not ready message
-	# if data = -1, set error message
+	# if data = -1, set error message, tally errors for port and reset MC if needed
 	# else de-encapsulate
-		# If gateworks needs to process id, parse and handle w/ functions
-		# prep for transmit
+		# convert from immutable "bytes" object to mutable "bytearray" object
+		# read byte by byte, remove escape bytes
+		# process ID, parse message if for Gateworks
+		# put into object type for transmission (bytes or bytearray)
 	return finalData
 	
 #----------------------------------------------------
 
 #-------- MAIN ----------------------------
 def main():
-    # get command line input, currently validating # of args
+    # get command line input, currently validating # of args ONLY
     groundIP = None
     groundPort = None
     # TODO - Validate all aspects of input, function to handle error cases
@@ -72,22 +75,22 @@ def main():
 
     # open local file
     localFile = open(localPath, "wb+")
-    # create and bind socket to port
+    # create and bind socket to port, TODO open rs-232 ports with timeout = x seconds
     speaker = socket(AF_INET,SOCK_DGRAM)
-	# Initialize microcontrollers
+	# TODO Initialize microcontrollers
 	
     #TODO - alive test, handshake?
     #TODO - section for additional functions/socket declarations for sending commands.
     #-------- TRANSMIT ----------------------------
     while 1:
-        # get data to transmit
+        #TODO (needs changed) get data to transmit
         dt = datetime.now()
         msg = str(dt.hour)+":"+str(dt.minute)+":"+str(dt.second)+":"+str(dt.microsecond)
 		
-		#iterate ports,
+		#TODO iterate ports, create variable to loop over
 
         # encode transmission in variable teleData (string, encoded in ascii)
-        teleData = msg.encode() #TODO encode as UTF-8 (binary?)
+        teleData = msg.encode() #TODO encode in different format
 
         # write data to file TODO
         writing = msg + "\n"
@@ -96,11 +99,11 @@ def main():
         # send data to ground
         speaker.sendto(teleData,(groundIP,groundPort))
 
-        # exit condition
+        # TODO exit condition
         if(msg == "0"):
             break
 
-    # close file, socket, and exit
+    # close file, socket, ports, and exit (TODO close rs-232 ports)
     localFile.close()
     speaker.close()
     quit()
