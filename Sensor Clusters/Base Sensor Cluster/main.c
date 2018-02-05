@@ -184,7 +184,7 @@ int main(void)
 ISR(USARTC0_RXC_vect)
 {
 	uint8_t data = USARTC0.DATA;
-	//RS232_InputBuffer_Add(data);
+	USART_InputBufferAdd(data);
 }
 
 // Writes one byte to the specified register of the BMP280
