@@ -33,7 +33,7 @@ uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size)
 			}
 			if((C0_buffer.buffer_index) == data_size)  // Start shifting data into hardware buffers if hardware buffers are empty
 			{
-				USART_SendByte(1);
+				USART_SendByte(2);
 			}
 			return 0;
 		case 3:
@@ -45,7 +45,7 @@ uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size)
 			}
 			if((C0_buffer.buffer_index) == data_size)  // Start shifting data into hardware buffers if hardware buffers are empty
 			{
-				USART_SendByte(1);
+				USART_SendByte(3);
 			}
 			return 0;
 		case 4:
@@ -57,11 +57,11 @@ uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size)
 			}
 			if((C0_buffer.buffer_index) == data_size)  // Start shifting data into hardware buffers if hardware buffers are empty
 			{
-				USART_SendByte(1);
+				USART_SendByte(4);
 			}
 			return 0;
 		case 5:
-			if(128 - (E0_buffer.buffer_index - 1) <= data_size) return 2  // Return 2 if not enough room in buffer
+			if(128 - (E0_buffer.buffer_index - 1) <= data_size) return 2;  // Return 2 if not enough room in buffer
 			for(uint8_t i = 0; i < data_size; i++)  // Add data to buffer
 			{
 				E0_buffer.buffer[E0_buffer.buffer_index + i] = data[i];
@@ -69,7 +69,7 @@ uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size)
 			}
 			if((C0_buffer.buffer_index) == data_size)  // Start shifting data into hardware buffers if hardware buffers are empty
 			{
-				USART_SendByte(1);
+				USART_SendByte(5);
 			}
 		return 0;
 	}

@@ -1,6 +1,7 @@
 #ifndef USART_H
 #define USART_H
 
+#include <avr/io.h>
 #include <stdint.h>
 
 // Data buffer struct definition
