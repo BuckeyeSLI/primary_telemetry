@@ -15,6 +15,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "usart.h"
+#include "message_encoder_decoder.h"
 
 // BMP280 I/O functions
 void BMP280_Write(uint8_t address, uint8_t data);

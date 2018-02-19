@@ -20,7 +20,7 @@ typedef struct
  *		0 - (NO ERROR) Data added to USART buffer successfully
  *		1 - (ERROR) Invalid value passed to 'usart'
  *		2 - (ERROR) Not enough room in USART buffer to fit 'data[]'
-*/
+ */
 uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size);
 
 /*	Adds a byte of data to the USART input buffer. Meant to be called during USART receive ISR.
@@ -29,7 +29,7 @@ uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size);
  *  RETURN:
  *		0 - (NO ERROR) Data added to USART buffer successfully
  *		1 - (ERROR) Not enough room in USART buffer to fit 'data'
-*/
+ */
 uint8_t USART_InputBufferAdd(uint8_t data);
 
 /*	Sends a byte of data from a USART software output buffer to the USART hardware output buffer. Meant to be called during USART send ISR.
@@ -40,7 +40,7 @@ uint8_t USART_InputBufferAdd(uint8_t data);
  *		1 - (ERROR) Invalid value passed to 'usart'
  *		2 - (ERROR) USART hardware buffer not ready
  *		3 - (ERROR) Not enough room in USART buffer to fit 'data'
-*/
+ */
 uint8_t USART_SendByte(uint8_t usart);
 
 #endif
