@@ -1,5 +1,4 @@
-/*
- * Base Sensor Board.c
+/* main.c
  *
  * Created     : 10/03/2017 3:24:51 PM
  * Author      : Andrew Bennett
@@ -65,8 +64,8 @@ int main(void)
 	SPIC.CTRL = SPI_CLK2X_bm | SPI_ENABLE_bm | SPI_MASTER_bm | SPI_PRESCALER0_bm;
 
 	/* --------------------- USART Configuration --------------------- */
-	// Set USCARTC0 receive interrupt to medium priority
-	USARTC0.CTRLA = USART_RXCINTLVL_MED_gc;
+	// Set USARTC0 receive interrupt to medium priority and USARTC0 transmit interrupt to low priority
+	USARTC0.CTRLA = USART_RXCINTLVL_MED_gc | USART_TXCINTLVL_LO_gc;
 	// Set packet size to 8 bits
 	USARTC0.CTRLC = USART_CHSIZE_8BIT_gc;
 	// Set baud rate to 115.2 kbs
@@ -138,6 +137,15 @@ int main(void)
 	// Enable interrupts
 	sei();
 
+	// Serial testing
+	uint8_t test_data[] = {0x01,0x02,0x03,0x04};
+	USART_OutputBufferAdd(1,test_data,4);
+
+	while(1)
+	{
+		global_en = 1;
+	}
+
 	// Begin normal operation
     while(1)
 	{
@@ -185,7 +193,15 @@ int main(void)
 ISR(USARTC0_RXC_vect)
 {
 	uint8_t data = USARTC0.DATA;
-	USART_InputBufferAdd(data);
+	USART_InputBufferAdd(0,data);
+	//TODO: Error handling for empty buffer
+}
+
+// USART0 transmit complete interrupt subroutine
+ISR(USARTC0_TXC_vect)
+{
+	USART_SendByte(1);
+	//TODO: Error handling for failed send (can an error even be reported if the send is FUBAR'd?)
 }
 
 // Writes one byte to the specified register of the BMP280

@@ -2,7 +2,6 @@
 #define MESSAGE_ENCODER_DECODER_H
 
 // Start, stop, and escape flag definitions - define in main.c to override
-
 #ifndef START_FLAG
 #define START_FLAG 0x7E
 #endif
