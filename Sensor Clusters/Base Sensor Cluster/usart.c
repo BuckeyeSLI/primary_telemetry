@@ -26,7 +26,7 @@ static uint8_t FIFOWrite(FIFOBuffer buffer, uint8_t byte)
 	return 0;
 }
 
-// Internal function to read from FIFO buffer. Returns 1 if buffer is full.
+// Internal function to read from FIFO buffer. Returns 1 if buffer is empty.
 static uint8_t FIFORead(FIFOBuffer buffer, uint8_t *byte)
 {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) // Ensure buffer is accessed atomically
@@ -170,5 +170,5 @@ uint8_t USART_SendByte(uint8_t usart)
 			USARTC0.DATA = data;
 			return 0;
 	}
-	return 1;  // Return 1 if 'usart' invalid
+	return 1;  // Return 1 if 'usart' is invalid
 }
