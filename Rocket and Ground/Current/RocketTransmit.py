@@ -38,9 +38,29 @@ def getLogPath ():
 def getData(port):
 	data = 0
 	avail = port.in_waiting
+	startFlag = 0x7E
+	stopFlag = 0x81
+	escapeFlag = 0x99
+	failureCount = 100 
 	# Read if data present on port
 	if (avail > 0):
 		# discard bytes until start flag reached (size = 1, in loop) TODO create some limit to set failure if needed
+		
+		test = hex(port.read(1)) # Check if first byte is start flag
+		ready = (test == startFlag)
+		
+		currentCount = 0 # Read up to failureCount bytes 
+		while (!ready && (currentCount < failureCount) && (hex(port.read(1)) != startFlag)):
+			currentCount += 1
+		
+		if (currentCount == 100):
+			return currentCount #TODO replace w/error
+		else:
+			currentCount = 0
+			
+			
+
+		# TODO onboard processing later, for now just sending to ground
 		# read message id, read message (size = #bytes in that message) If fail, set data to -1
 		# if no failure, read in end flag and confirm to remove from buffer (size = 1)
 	
