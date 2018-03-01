@@ -13,6 +13,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "usart.h"
 #include "message_encoder_decoder.h"
 
@@ -137,10 +138,6 @@ int main(void)
 	// Enable interrupts
 	sei();
 
-	// Serial testing
-	uint8_t test_data[] = {0x01,0x02,0x03,0x04};
-	USART_OutputBufferAdd(1,test_data,4);
-
 	while(1)
 	{
 		global_en = 1;
@@ -200,7 +197,7 @@ ISR(USARTC0_RXC_vect)
 // USART0 transmit complete interrupt subroutine
 ISR(USARTC0_TXC_vect)
 {
-	USART_SendByte(1);
+	USART_SendByte(0);
 	//TODO: Error handling for failed send (can an error even be reported if the send is FUBAR'd?)
 }
 

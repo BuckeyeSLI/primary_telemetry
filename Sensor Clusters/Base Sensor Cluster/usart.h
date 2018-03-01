@@ -28,6 +28,7 @@ typedef struct
  *		0 - (NO ERROR) Data added to USART buffer successfully
  *		1 - (ERROR) Invalid value passed to 'usart'
  *		2 - (ERROR) Not enough room in USART buffer to fit 'data[]'
+ *		3 - (ERROR) Buffer unexpectedly filled while shifting 'data[]' into buffer (only part of 'data[]' shifted)
  */
 uint8_t USART_OutputBufferAdd(uint8_t usart, uint8_t data[], uint8_t data_size);
 
