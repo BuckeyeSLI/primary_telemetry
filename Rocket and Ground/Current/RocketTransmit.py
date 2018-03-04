@@ -49,16 +49,18 @@ def getData(port):
 		test = hex(port.read(1)) # Check if first byte is start flag
 		ready = (test == startFlag)
 		
-		currentCount = 0 # Read up to failureCount bytes 
+		currentCount = 0 # Read up to failureCount bytes TODO handle escape byte 
 		while (!ready && (currentCount < failureCount) && (hex(port.read(1)) != startFlag)):
 			currentCount += 1
 		
 		if (currentCount == 100):
-			return currentCount #TODO replace w/error
+			print("sensor failure: recovery not yet implemented, exiting to preserve software integrity")
+			endTelemetry()
 		else:
 			currentCount = 0
 			
-			
+	
+		#TODO	store input to array correctly, bodged solution: parse through until unescaped stop byte found	
 
 		# TODO onboard processing later, for now just sending to ground
 		# read message id, read message (size = #bytes in that message) If fail, set data to -1
@@ -68,6 +70,7 @@ def getData(port):
 	return final
 	
 def parseData (data):
+	finalData = data
 	# if data = 0, set cluster not ready message
 	# if data = -1, set error message, tally errors for port and reset MC if needed
 	# else de-encapsulate
@@ -76,6 +79,13 @@ def parseData (data):
 		# process ID, parse message if for Gateworks
 		# put into object type for transmission (bytes or bytearray)
 	return finalData
+	
+	
+def endTelemetry (localFile, speaker, port):
+	#TODO close port
+	localFile.close()
+    speaker.close()
+    quit()
 	
 #----------------------------------------------------
 
@@ -123,10 +133,9 @@ def main():
         if(msg == "0"):
             break
 
-    # close file, socket, ports, and exit (TODO close rs-232 ports)
-    localFile.close()
-    speaker.close()
-    quit()
+    # close file, socket, ports, and exit
+    endTelemetry(localFile, speaker, port)
     return
 #----------------------------------------------------
 main()
+
