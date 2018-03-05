@@ -138,11 +138,6 @@ int main(void)
 	// Enable interrupts
 	sei();
 
-	while(1)
-	{
-		global_en = 1;
-	}
-
 	// Begin normal operation
     while(1)
 	{
