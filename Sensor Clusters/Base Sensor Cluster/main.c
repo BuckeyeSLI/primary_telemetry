@@ -184,15 +184,17 @@ int main(void)
 // USART0 receive complete interrupt subroutine
 ISR(USARTC0_RXC_vect)
 {
+	uint8_t error;
 	uint8_t data = USARTC0.DATA;
-	USART_InputBufferAdd(0,data);
+	error = USART_InputBufferAdd(0,data);
 	//TODO: Error handling for empty buffer
 }
 
 // USART0 transmit complete interrupt subroutine
 ISR(USARTC0_TXC_vect)
 {
-	USART_SendByte(0);
+	uint8_t error;
+	error = USART_SendByte(0);
 	//TODO: Error handling for failed send (can an error even be reported if the send is FUBAR'd?)
 }
 
