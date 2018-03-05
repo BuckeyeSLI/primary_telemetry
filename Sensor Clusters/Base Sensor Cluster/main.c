@@ -129,11 +129,11 @@ int main(void)
 
 	/* --------------------- Program State Definitions --------------------- */
 	// These variables are used to control what the microcontroller will do in the main loop
-	uint8_t global_en = 0;
-	uint8_t	BMP280_en = BMP280_alive;
-	uint8_t BMX055_accel_en = BMX055_accel_alive;
-	uint8_t BMX055_gyro_en = BMX055_gyro_alive;
-	uint8_t BMX055_magnt_en = BMX055_magnt_alive;
+	volatile uint8_t global_en = 0;
+	volatile uint8_t BMP280_en = BMP280_alive;
+	volatile uint8_t BMX055_accel_en = BMX055_accel_alive;
+	volatile uint8_t BMX055_gyro_en = BMX055_gyro_alive;
+	volatile uint8_t BMX055_magnt_en = BMX055_magnt_alive;
 
 	// Enable interrupts
 	sei();
