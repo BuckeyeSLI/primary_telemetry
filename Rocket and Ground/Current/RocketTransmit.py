@@ -43,20 +43,20 @@ def getData(port):
 	escapeFlag = 0x99
 	failureCount = 100 
 	done = false
-	# Read if data present on port
-	while (!done):
-		# read until stop flag encountered
-		if (avail > 0):
-			# read byte by byte, place into data (mutable bytearray). If end flag, check for escape in data
-		avail = port.in_waiting
+	# read until stop flag encountered
+	if (avail > 0):
+		# read byte by byte, place into data (mutable bytearray). If end flag, check for escape in data
+			
+		readValue #= read the port, 1 byte
+		while(readValue # is not an escaped stop):
+			#parse readValue into data
 			
 	
-		#TODO	store input to array correctly, bodged solution: parse through until unescaped stop byte found	
-		#TODO timeout the reads
+	#TODO	store input to array correctly, bodged solution: parse through until unescaped stop byte found	
+	#TODO timeout the reads
 
-		# TODO onboard processing later, for now just sending to ground
-		# read message id, read message (size = #bytes in that message) If fail, set data to -1
-		# if no failure, read in end flag and confirm to remove from buffer (size = 1)
+	# read message id, read message (size = #bytes in that message) If fail, set data to -1
+	# if no failure, read in end flag and confirm to remove from buffer (size = 1)
 	
 	final = parseData(data)
 	return final
